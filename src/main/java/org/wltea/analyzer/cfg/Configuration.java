@@ -31,9 +31,24 @@ import java.util.List;
  * 配置管理类接口
  * 
  */
+/**
+ * @author lunianping
+ *
+ */
 public interface Configuration {
 	
-	
+	public enum DictionaryType{
+		local("local"),zk("zk");
+		
+		private String val;
+		private DictionaryType(String val){
+			this.val=val;
+		}
+		
+		public String getVal(){
+			return this.val;
+		}
+	}
 	
 	/**
 	 * 返回useSmart标志位
@@ -75,5 +90,10 @@ public interface Configuration {
 	 * @return List<String> 相对类加载器的路径
 	 */
 	public List<String> getExtStopWordDictionarys();
-			
+		
+	
+	/**
+	 * @return
+	 */
+	public DictionaryType getDictionaryType();
 }

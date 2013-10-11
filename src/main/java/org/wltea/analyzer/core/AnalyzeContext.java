@@ -33,7 +33,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.wltea.analyzer.cfg.Configuration;
-import org.wltea.analyzer.dic.impl.Dictionary;
+import org.wltea.analyzer.dic.Dictionary;
+import org.wltea.analyzer.dic.DictionaryWithZK;
 
 /**
  * 
@@ -314,11 +315,12 @@ class AnalyzeContext {
 	 */
 	Lexeme getNextLexeme(){
 		//从结果集取出，并移除第一个Lexme
+		Dictionary dictionary = DictionaryWithZK.getSingleton();
 		Lexeme result = this.results.pollFirst();
 		while(result != null){
     		//数量词合并
     		this.compound(result);
-    		if(Dictionary.getSingleton().isStopWord(this.segmentBuff ,  result.getBegin() , result.getLength())){
+    		if(dictionary.isStopWord(this.segmentBuff ,  result.getBegin() , result.getLength())){
        			//是停止词继续取列表的下一个
     			result = this.results.pollFirst(); 				
     		}else{

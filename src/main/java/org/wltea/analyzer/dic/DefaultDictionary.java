@@ -23,7 +23,7 @@
  * 
  * 
  */
-package org.wltea.analyzer.dic.impl;
+package org.wltea.analyzer.dic;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,18 +33,17 @@ import java.util.Collection;
 import java.util.List;
 
 import org.wltea.analyzer.cfg.Configuration;
-import org.wltea.analyzer.dic.Hit;
 
 /**
  * 词典管理类,单子模式
  */
-public class OODictionary {
+public class DefaultDictionary implements Dictionary{
 
 
 	/*
 	 * 词典单子实例
 	 */
-	private static OODictionary singleton;
+	private static Dictionary singleton;
 	
 	/*
 	 * 主词典对象
@@ -65,7 +64,7 @@ public class OODictionary {
 	 */
 	private Configuration cfg;
 	
-	private OODictionary(Configuration cfg){
+	private DefaultDictionary(Configuration cfg){
 		this.cfg = cfg;
 		this.loadMainDict();
 		this.loadStopWordDict();
@@ -80,11 +79,11 @@ public class OODictionary {
 	 * 该方法提供了一个在应用加载阶段就初始化字典的手段
 	 * @return Dictionary
 	 */
-	public static OODictionary initial(Configuration cfg){
+	public static Dictionary initial(Configuration cfg){
 		if(singleton == null){
 			synchronized(Dictionary.class){
 				if(singleton == null){
-					singleton = new OODictionary(cfg);
+					singleton = new DefaultDictionary(cfg);
 					return singleton;
 				}
 			}
@@ -96,7 +95,7 @@ public class OODictionary {
 	 * 获取词典单子实例
 	 * @return Dictionary 单例对象
 	 */
-	public static OODictionary getSingleton(){
+	public static Dictionary getSingleton(){
 		if(singleton == null){
 			throw new IllegalStateException("词典尚未初始化，请先调用initial方法");
 		}
@@ -112,7 +111,7 @@ public class OODictionary {
 			for(String word : words){
 				if (word != null) {
 					//批量加载词条到主内存词典中
-					singleton._MainDict.fillSegment(word.trim().toLowerCase().toCharArray());
+					_MainDict.fillSegment(word.trim().toLowerCase().toCharArray());
 				}
 			}
 		}
@@ -127,7 +126,7 @@ public class OODictionary {
 			for(String word : words){
 				if (word != null) {
 					//批量屏蔽词条
-					singleton._MainDict.disableSegment(word.trim().toLowerCase().toCharArray());
+					_MainDict.disableSegment(word.trim().toLowerCase().toCharArray());
 				}
 			}
 		}
@@ -139,7 +138,7 @@ public class OODictionary {
 	 * @return Hit 匹配结果描述
 	 */
 	public Hit matchInMainDict(char[] charArray){
-		return singleton._MainDict.match(charArray);
+		return _MainDict.match(charArray);
 	}
 	
 	/**
@@ -150,7 +149,7 @@ public class OODictionary {
 	 * @return Hit 匹配结果描述
 	 */
 	public Hit matchInMainDict(char[] charArray , int begin, int length){
-		return singleton._MainDict.match(charArray, begin, length);
+		return _MainDict.match(charArray, begin, length);
 	}
 	
 	/**
@@ -161,7 +160,7 @@ public class OODictionary {
 	 * @return Hit 匹配结果描述
 	 */
 	public Hit matchInQuantifierDict(char[] charArray , int begin, int length){
-		return singleton._QuantifierDict.match(charArray, begin, length);
+		return _QuantifierDict.match(charArray, begin, length);
 	}
 	
 	
@@ -186,7 +185,7 @@ public class OODictionary {
 	 * @return boolean
 	 */
 	public boolean isStopWord(char[] charArray , int begin, int length){			
-		return singleton._StopWordDict.match(charArray, begin, length).isMatch();
+		return _StopWordDict.match(charArray, begin, length).isMatch();
 	}	
 	
 	/**

@@ -29,7 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.wltea.analyzer.dic.Hit;
-import org.wltea.analyzer.dic.impl.Dictionary;
+import org.wltea.analyzer.dic.Dictionary;
 
 
 /**

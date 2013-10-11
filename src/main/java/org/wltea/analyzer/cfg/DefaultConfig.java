@@ -49,6 +49,9 @@ public class DefaultConfig implements Configuration{
 	 * 分词器配置文件路径
 	 */	
 	private static final String FILE_NAME = "IKAnalyzer.cfg.xml";
+	
+	//配置属性——扩展字典
+	private static final String DICT_TYPE = "type";
 	//配置属性——扩展字典
 	private static final String EXT_DICT = "ext_dict";
 	//配置属性——扩展停止词典
@@ -163,6 +166,21 @@ public class DefaultConfig implements Configuration{
 			}
 		}		
 		return extStopWordDictFiles;		
+	}
+
+	@Override
+	public DictionaryType getDictionaryType() {
+		// TODO Auto-generated method stub
+		String type = props.getProperty(DICT_TYPE);
+		DictionaryType t = DictionaryType.zk;
+		DictionaryType[] types = DictionaryType.values();
+		for(DictionaryType tt :types){
+			if(tt.getVal().equals(type)){
+				t = tt;
+				break;
+			}
+		}
+		return t;
 	}
 			
 
