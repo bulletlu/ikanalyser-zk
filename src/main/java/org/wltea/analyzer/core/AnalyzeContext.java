@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.wltea.analyzer.cfg.Configuration;
-import org.wltea.analyzer.dic.Dictionary;
+import org.wltea.analyzer.dic.impl.Dictionary;
 
 /**
  * 

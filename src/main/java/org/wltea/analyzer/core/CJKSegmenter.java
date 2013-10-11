@@ -28,8 +28,8 @@ package org.wltea.analyzer.core;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.wltea.analyzer.dic.Dictionary;
 import org.wltea.analyzer.dic.Hit;
+import org.wltea.analyzer.dic.impl.Dictionary;
 
 
 /**

@@ -30,7 +30,7 @@ import java.util.List;
 
 import org.wltea.analyzer.cfg.Configuration;
 import org.wltea.analyzer.cfg.DefaultConfig;
-import org.wltea.analyzer.dic.Dictionary;
+import org.wltea.analyzer.dic.impl.Dictionary;
 
 /**
  * IK分词器主类

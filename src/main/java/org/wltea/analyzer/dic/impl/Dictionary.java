@@ -23,27 +23,47 @@
  * 
  * 
  */
-package org.wltea.analyzer.dic;
+package org.wltea.analyzer.dic.impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.ZooKeeper;
 import org.wltea.analyzer.cfg.Configuration;
+import org.wltea.analyzer.dic.DictSegment;
+import org.wltea.analyzer.dic.Hit;
+
 
 /**
  * 词典管理类,单子模式
  */
-public class OODictionary {
+/**
+ * @author kevin
+ *
+ */
+public class Dictionary implements Watcher{
+	
+	 private static Logger logger = Logger.getLogger(Dictionary.class);
 
-
+	private static final String ZK_DIC_ROOT = "/dictionary";
+	private static final String ZK_DIC_EXT = ZK_DIC_ROOT+"/ext";
+	private static final String ZK_DIC_STOP = ZK_DIC_ROOT+"/stop";
+	
 	/*
 	 * 词典单子实例
 	 */
-	private static OODictionary singleton;
+	private static Dictionary singleton;
 	
 	/*
 	 * 主词典对象
@@ -64,10 +84,16 @@ public class OODictionary {
 	 */
 	private Configuration cfg;
 	
-	private OODictionary(Configuration cfg){
+	/**
+	 * 
+	 */
+	private ZooKeeper	zk;
+	
+	private Dictionary(Configuration cfg){
 		this.cfg = cfg;
+		this.initZk();
 		this.loadMainDict();
-		this.loadStopWordDict();
+		//this.loadStopWordDict();
 		this.loadQuantifierDict();
 	}
 	
@@ -79,11 +105,11 @@ public class OODictionary {
 	 * 该方法提供了一个在应用加载阶段就初始化字典的手段
 	 * @return Dictionary
 	 */
-	public static OODictionary initial(Configuration cfg){
+	public static Dictionary initial(Configuration cfg){
 		if(singleton == null){
 			synchronized(Dictionary.class){
 				if(singleton == null){
-					singleton = new OODictionary(cfg);
+					singleton = new Dictionary(cfg);
 					return singleton;
 				}
 			}
@@ -95,38 +121,118 @@ public class OODictionary {
 	 * 获取词典单子实例
 	 * @return Dictionary 单例对象
 	 */
-	public static OODictionary getSingleton(){
+	public static Dictionary getSingleton(){
 		if(singleton == null){
 			throw new IllegalStateException("词典尚未初始化，请先调用initial方法");
 		}
 		return singleton;
 	}
 	
+	private void initZk(){
+		String zkhost = System.getProperty("zkHost");
+		try {
+			this.zk = new ZooKeeper(zkhost,5*1000,this);
+			
+			if(zk.exists(ZK_DIC_ROOT, false) == null){
+				zk.create(ZK_DIC_ROOT, null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			}
+			
+			if(zk.exists(ZK_DIC_EXT+".add", true)==null){
+				zk.create(ZK_DIC_EXT+".add", null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			}
+			
+			if(zk.exists(ZK_DIC_EXT+".del", true)==null){
+				zk.create(ZK_DIC_EXT+".del", null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			}
+			
+			if(zk.exists(ZK_DIC_STOP+".add", true)==null){
+				zk.create(ZK_DIC_STOP+".add", null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			}
+			
+			if(zk.exists(ZK_DIC_STOP+".del", true)==null){
+				zk.create(ZK_DIC_STOP+".del", null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (KeeperException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * 批量加载新词条
 	 * @param words Collection<String>词条列表
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
 	 */
-	public void addWords(Collection<String> words){
+	public void addWordsToMainDict(Collection<String> words) throws KeeperException, InterruptedException{
 		if(words != null){
+			StringBuffer buf = new StringBuffer();
 			for(String word : words){
 				if (word != null) {
 					//批量加载词条到主内存词典中
-					singleton._MainDict.fillSegment(word.trim().toLowerCase().toCharArray());
+					buf.append(word).append("\n");
 				}
 			}
+			this.zk.setData(ZK_DIC_EXT+".add", buf.toString().getBytes(), -1);
 		}
 	}
 	
 	/**
 	 * 批量移除（屏蔽）词条
 	 * @param words
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
 	 */
-	public void disableWords(Collection<String> words){
+	public void disableWordsFromMainDict(Collection<String> words) throws KeeperException, InterruptedException{
 		if(words != null){
+			StringBuffer buf = new StringBuffer();
 			for(String word : words){
 				if (word != null) {
 					//批量屏蔽词条
-					singleton._MainDict.disableSegment(word.trim().toLowerCase().toCharArray());
+					this.zk.setData(ZK_DIC_EXT+".del", buf.toString().getBytes(), -1);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 批量加载新词条
+	 * @param words Collection<String>词条列表
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
+	 */
+	public void addWordsToStopDict(Collection<String> words) throws KeeperException, InterruptedException{
+		if(words != null){
+			StringBuffer buf = new StringBuffer();
+			for(String word : words){
+				if (word != null) {
+					//批量加载词条到主内存词典中
+					buf.append(word).append("\n");
+				}
+			}
+			this.zk.setData(ZK_DIC_STOP+".add", buf.toString().getBytes(), -1);
+		}
+	}
+	
+	/**
+	 * 批量移除（屏蔽）词条
+	 * @param words
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
+	 */
+	public void disableWordsFromStopDict(Collection<String> words) throws KeeperException, InterruptedException{
+		if(words != null){
+			StringBuffer buf = new StringBuffer();
+			for(String word : words){
+				if (word != null) {
+					//批量屏蔽词条
+					this.zk.setData(ZK_DIC_STOP+".del", buf.toString().getBytes(), -1);
 				}
 			}
 		}
@@ -225,7 +331,7 @@ public class OODictionary {
 			}
 		}
 		//加载扩展词典
-		this.loadExtDict();
+		//this.loadExtDict();
 	}	
 	
 	/**
@@ -356,6 +462,82 @@ public class OODictionary {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	
+	/**
+	 * 更新、删除字典中的词汇
+	 * @param words
+	 * @param update	true:增加词汇，false:删除词汇
+	 * @param dict
+	 */
+	private void updateWordsToDict(Collection<String> words,boolean update,DictSegment dict){
+		if(words != null){
+			logger.info("Words : "+words.toString());
+			for(String word : words){
+				if (word != null) {
+					//批量加载词条到主内存词典中
+					if(update){
+						dict.fillSegment(word.trim().toLowerCase().toCharArray());
+					}else{
+						dict.disableSegment(word.trim().toLowerCase().toCharArray());
+					}
+				}
+			}
+		}
+	}
+
+	
+	/**
+	 * 从zookeeper中取得文件内容，并封装成词汇集合
+	 * @param path
+	 * @return
+	 */
+	private Collection<String> getDataFromZkFile(String path){
+		Collection<String> set = new HashSet<String>();
+		byte[] buf = null;
+		try {
+			buf = this.zk.getData(path, true, null);
+		} catch (KeeperException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(buf != null){
+			String[] words = new String(buf).split("\n");
+			for(int i=0;i<words.length;i++){
+				set.add(words[i]);
+			}
+		}
+		return set;
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see org.apache.zookeeper.Watcher#process(org.apache.zookeeper.WatchedEvent)
+	 */
+	public void process(WatchedEvent event) {
+		// TODO Auto-generated method stub
+		logger.debug("path: "+event.getPath()+"   EventType: "+event.getType());
+		if(event.getType()==Watcher.Event.EventType.NodeDataChanged && event.getPath()!=null){
+			String path = event.getPath();
+			logger.debug("path: "+path);
+			if(path.equals(ZK_DIC_EXT+".add")){
+				Collection<String> words = this.getDataFromZkFile(path);
+				this.updateWordsToDict(words, true, singleton._MainDict);
+			}else if(path.equals(ZK_DIC_EXT+".del")){
+				Collection<String> words = this.getDataFromZkFile(path);
+				this.updateWordsToDict(words, false, singleton._MainDict);
+			}else if(path.equals(ZK_DIC_STOP+".add")){
+				Collection<String> words = this.getDataFromZkFile(path);
+				this.updateWordsToDict(words, true,singleton._StopWordDict);
+			}else if(path.equals(ZK_DIC_STOP+".del")){
+				Collection<String> words = this.getDataFromZkFile(path);
+				this.updateWordsToDict(words, true, singleton._StopWordDict);
+			} 
 		}
 	}
 	
