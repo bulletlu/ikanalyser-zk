@@ -51,18 +51,6 @@ public interface Dictionary {
 	 */
 	public boolean isStopWord(char[] charArray , int begin, int length);
 	
-//	/**
-//	 * 批量加载新词条
-//	 * @param words Collection<String>词条列表
-//	 */
-//	public void addWords(Collection<String> words);
-//	
-//	
-//	/**
-//	 * 批量移除（屏蔽）词条
-//	 * @param words
-//	 */
-//	public void disableWords(Collection<String> words);
 	
 	/**
 	 * 批量加载新词条

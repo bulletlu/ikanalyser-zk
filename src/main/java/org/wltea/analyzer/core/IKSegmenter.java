@@ -30,6 +30,7 @@ import java.util.List;
 
 import org.wltea.analyzer.cfg.Configuration;
 import org.wltea.analyzer.cfg.DefaultConfig;
+import org.wltea.analyzer.cfg.StandardConfig;
 import org.wltea.analyzer.dic.Dictionary;
 import org.wltea.analyzer.dic.DictionaryGenerator;
 
@@ -61,7 +62,8 @@ public final class IKSegmenter {
 	 */
 	public IKSegmenter(Reader input , boolean useSmart){
 		this.input = input;
-		this.cfg = DefaultConfig.getInstance();
+		//this.cfg = DefaultConfig.getInstance();
+		this.cfg = StandardConfig.getInstance();
 		this.cfg.setUseSmart(useSmart);
 		this.init();
 	}
