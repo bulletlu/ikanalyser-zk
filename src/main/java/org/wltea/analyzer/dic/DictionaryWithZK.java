@@ -167,7 +167,7 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	public void addWordsToMainDict(Collection<String> words) throws KeeperException, InterruptedException{
+	public void addWordsToMainDict(Collection<String> words) throws DictionaryException{
 		if(words != null){
 			StringBuffer buf = new StringBuffer();
 			for(String word : words){
@@ -176,7 +176,17 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 					buf.append(word).append("\n");
 				}
 			}
-			this.zk.setData(ZK_DIC_EXT+".add", buf.toString().getBytes(), -1);
+			try {
+				this.zk.setData(ZK_DIC_EXT+".add", buf.toString().getBytes(), -1);
+			} catch (KeeperException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
+			}
 		}
 	}
 	
@@ -186,13 +196,23 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	public void disableWordsFromMainDict(Collection<String> words) throws KeeperException, InterruptedException{
+	public void disableWordsFromMainDict(Collection<String> words) throws DictionaryException{
 		if(words != null){
 			StringBuffer buf = new StringBuffer();
 			for(String word : words){
 				if (word != null) {
 					//批量屏蔽词条
-					this.zk.setData(ZK_DIC_EXT+".del", buf.toString().getBytes(), -1);
+					try {
+						this.zk.setData(ZK_DIC_EXT+".del", buf.toString().getBytes(), -1);
+					} catch (KeeperException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						throw new DictionaryException("写入zookeeper数据失败");
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						throw new DictionaryException("写入zookeeper数据失败");
+					}
 				}
 			}
 		}
@@ -204,7 +224,7 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	public void addWordsToStopDict(Collection<String> words) throws KeeperException, InterruptedException{
+	public void addWordsToStopDict(Collection<String> words) throws DictionaryException{
 		if(words != null){
 			StringBuffer buf = new StringBuffer();
 			for(String word : words){
@@ -213,7 +233,17 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 					buf.append(word).append("\n");
 				}
 			}
-			this.zk.setData(ZK_DIC_STOP+".add", buf.toString().getBytes(), -1);
+			try {
+				this.zk.setData(ZK_DIC_STOP+".add", buf.toString().getBytes(), -1);
+			} catch (KeeperException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
+			}
 		}
 	}
 	
@@ -223,13 +253,23 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	public void disableWordsFromStopDict(Collection<String> words) throws KeeperException, InterruptedException{
+	public void disableWordsFromStopDict(Collection<String> words) throws DictionaryException{
 		if(words != null){
 			StringBuffer buf = new StringBuffer();
 			for(String word : words){
 				if (word != null) {
 					//批量屏蔽词条
-					this.zk.setData(ZK_DIC_STOP+".del", buf.toString().getBytes(), -1);
+					try {
+						this.zk.setData(ZK_DIC_STOP+".del", buf.toString().getBytes(), -1);
+					} catch (KeeperException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						throw new DictionaryException("写入zookeeper数据失败");
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						throw new DictionaryException("写入zookeeper数据失败");
+					}
 				}
 			}
 		}
@@ -443,16 +483,6 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 		}
 	}
 
-	@Override
-	public void addWords(Collection<String> words) {
-		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void disableWords(Collection<String> words) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 }

@@ -2,6 +2,8 @@ package org.wltea.analyzer.dic;
 
 import java.util.Collection;
 
+import org.apache.zookeeper.KeeperException;
+
 public interface Dictionary {
 	
 	/**
@@ -49,16 +51,47 @@ public interface Dictionary {
 	 */
 	public boolean isStopWord(char[] charArray , int begin, int length);
 	
+//	/**
+//	 * 批量加载新词条
+//	 * @param words Collection<String>词条列表
+//	 */
+//	public void addWords(Collection<String> words);
+//	
+//	
+//	/**
+//	 * 批量移除（屏蔽）词条
+//	 * @param words
+//	 */
+//	public void disableWords(Collection<String> words);
+	
 	/**
 	 * 批量加载新词条
 	 * @param words Collection<String>词条列表
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
 	 */
-	public void addWords(Collection<String> words);
+	public void addWordsToMainDict(Collection<String> words) throws DictionaryException;
+	/**
+	 * 批量移除（屏蔽）词条
+	 * @param words
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
+	 */
+	public void disableWordsFromMainDict(Collection<String> words) throws DictionaryException;
 	
+	/**
+	 * 批量加载新词条
+	 * @param words Collection<String>词条列表
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
+	 */
+	public void addWordsToStopDict(Collection<String> words) throws DictionaryException;
 	
 	/**
 	 * 批量移除（屏蔽）词条
 	 * @param words
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
 	 */
-	public void disableWords(Collection<String> words);
+	public void disableWordsFromStopDict(Collection<String> words) throws DictionaryException;
 }

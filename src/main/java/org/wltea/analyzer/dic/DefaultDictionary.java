@@ -102,35 +102,6 @@ public class DefaultDictionary implements Dictionary{
 		return singleton;
 	}
 	
-	/**
-	 * 批量加载新词条
-	 * @param words Collection<String>词条列表
-	 */
-	public void addWords(Collection<String> words){
-		if(words != null){
-			for(String word : words){
-				if (word != null) {
-					//批量加载词条到主内存词典中
-					_MainDict.fillSegment(word.trim().toLowerCase().toCharArray());
-				}
-			}
-		}
-	}
-	
-	/**
-	 * 批量移除（屏蔽）词条
-	 * @param words
-	 */
-	public void disableWords(Collection<String> words){
-		if(words != null){
-			for(String word : words){
-				if (word != null) {
-					//批量屏蔽词条
-					_MainDict.disableSegment(word.trim().toLowerCase().toCharArray());
-				}
-			}
-		}
-	}
 	
 	/**
 	 * 检索匹配主词典
@@ -355,6 +326,62 @@ public class DefaultDictionary implements Dictionary{
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void addWordsToMainDict(Collection<String> words)
+			throws DictionaryException {
+		// TODO Auto-generated method stub
+		if(words != null){
+			for(String word : words){
+				if (word != null) {
+					//批量加载词条到主内存词典中
+					_MainDict.fillSegment(word.trim().toLowerCase().toCharArray());
+				}
+			}
+		}
+	}
+
+	@Override
+	public void disableWordsFromMainDict(Collection<String> words)
+			throws DictionaryException {
+		// TODO Auto-generated method stub
+		if(words != null){
+			for(String word : words){
+				if (word != null) {
+					//批量屏蔽词条
+					_MainDict.disableSegment(word.trim().toLowerCase().toCharArray());
+				}
+			}
+		}
+	}
+
+	@Override
+	public void addWordsToStopDict(Collection<String> words)
+			throws DictionaryException {
+		// TODO Auto-generated method stub
+		if(words != null){
+			for(String word : words){
+				if (word != null) {
+					//批量加载词条到主内存词典中
+					_StopWordDict.fillSegment(word.trim().toLowerCase().toCharArray());
+				}
+			}
+		}
+	}
+
+	@Override
+	public void disableWordsFromStopDict(Collection<String> words)
+			throws DictionaryException {
+		// TODO Auto-generated method stub
+		if(words != null){
+			for(String word : words){
+				if (word != null) {
+					//批量屏蔽词条
+					_StopWordDict.disableSegment(word.trim().toLowerCase().toCharArray());
+				}
 			}
 		}
 	}
