@@ -3,7 +3,7 @@
 <properties>  
 	<comment>IK Analyzer 扩展配置</comment>
 	<!--配置词典类型，zk：支持词典集群同步更新，local:本地词典 -->
-	<entry key="type">local</entry> 
+	<entry key="type">zk</entry> 
 	
 	<!--用户可以在这里配置自己的扩展字典 -->
 	<entry key="ext">e:/ext</entry> 
