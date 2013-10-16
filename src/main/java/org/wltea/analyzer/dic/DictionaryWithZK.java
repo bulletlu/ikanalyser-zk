@@ -203,18 +203,19 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 			for(String word : words){
 				if (word != null) {
 					//批量屏蔽词条
-					try {
-						this.zk.setData(ZK_DIC_EXT+".del", buf.toString().getBytes(), -1);
-					} catch (KeeperException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						throw new DictionaryException("写入zookeeper数据失败");
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						throw new DictionaryException("写入zookeeper数据失败");
-					}
+					buf.append(word).append("\n");
 				}
+			}
+			try {
+				this.zk.setData(ZK_DIC_EXT+".del", buf.toString().getBytes(), -1);
+			} catch (KeeperException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
 			}
 		}
 	}
@@ -260,18 +261,19 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 			for(String word : words){
 				if (word != null) {
 					//批量屏蔽词条
-					try {
-						this.zk.setData(ZK_DIC_STOP+".del", buf.toString().getBytes(), -1);
-					} catch (KeeperException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						throw new DictionaryException("写入zookeeper数据失败");
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						throw new DictionaryException("写入zookeeper数据失败");
-					}
+					buf.append(word).append("\n");
 				}
+			}
+			try {
+				this.zk.setData(ZK_DIC_STOP+".del", buf.toString().getBytes(), -1);
+			} catch (KeeperException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
 			}
 		}
 	}
@@ -429,7 +431,7 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 		if(words != null){
 			logger.info("Words : "+words.toString());
 			for(String word : words){
-				if (word != null) {
+				if (word != null && word.trim().length()>0) {
 					//批量加载词条到主内存词典中
 					if(update){
 						dict.fillSegment(word.trim().toLowerCase().toCharArray());
