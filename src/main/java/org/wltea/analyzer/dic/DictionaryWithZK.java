@@ -29,9 +29,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
@@ -178,12 +178,16 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 				}
 			}
 			try {
-				this.zk.setData(ZK_DIC_EXT+".add", buf.toString().getBytes(), -1);
+				this.zk.setData(ZK_DIC_EXT+".add", buf.toString().getBytes("UTF-8"), -1);
 			} catch (KeeperException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw new DictionaryException("写入zookeeper数据失败");
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
+			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw new DictionaryException("写入zookeeper数据失败");
@@ -207,12 +211,16 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 				}
 			}
 			try {
-				this.zk.setData(ZK_DIC_EXT+".del", buf.toString().getBytes(), -1);
+				this.zk.setData(ZK_DIC_EXT+".del", buf.toString().getBytes("UTF-8"), -1);
 			} catch (KeeperException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw new DictionaryException("写入zookeeper数据失败");
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
+			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw new DictionaryException("写入zookeeper数据失败");
@@ -236,12 +244,16 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 				}
 			}
 			try {
-				this.zk.setData(ZK_DIC_STOP+".add", buf.toString().getBytes(), -1);
+				this.zk.setData(ZK_DIC_STOP+".add", buf.toString().getBytes("UTF-8"), -1);
 			} catch (KeeperException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw new DictionaryException("写入zookeeper数据失败");
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
+			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw new DictionaryException("写入zookeeper数据失败");
@@ -265,12 +277,16 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 				}
 			}
 			try {
-				this.zk.setData(ZK_DIC_STOP+".del", buf.toString().getBytes(), -1);
+				this.zk.setData(ZK_DIC_STOP+".del", buf.toString().getBytes("UTF-8"), -1);
 			} catch (KeeperException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw new DictionaryException("写入zookeeper数据失败");
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new DictionaryException("写入zookeeper数据失败");
+			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw new DictionaryException("写入zookeeper数据失败");
@@ -462,9 +478,14 @@ public class DictionaryWithZK implements Dictionary,Watcher{
 			e.printStackTrace();
 		}
 		if(buf != null){
-			String[] words = new String(buf).split("\n");
-			for(int i=0;i<words.length;i++){
-				set.add(words[i]);
+			String[] words = null;
+			try {
+				words = (new String(buf,"UTF-8")).split("\n");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			for(String word:words){
+				set.add(word);
 			}
 		}
 		return set;
